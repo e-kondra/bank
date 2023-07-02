@@ -1,14 +1,14 @@
 package user;
 
-
-import java.util.ArrayList;
+import javax.swing.*;
+import static javax.swing.JOptionPane.*;\
 import java.util.Scanner;
 import java.util.UUID;
 
 public class UserController {
     private UserService userService;
     private UserRepository userRepository;
-    User user;
+    private User user;
     Scanner scanner = new Scanner(System.in);
 
     public UserController(UserRepository userRepository) {
@@ -43,24 +43,50 @@ public class UserController {
     }
 
     private User collectUserInfo() {
+        JTextField field1 = new JTextField();
+        JTextField field2 = new JTextField();
+        JTextField field3 = new JTextField();
+        JTextField field4 = new JTextField();
 
-        System.out.println("Please, enter your name");
-        String name = scanner.nextLine();
+        Object[] message = {
+                "Name:", field1,
+                "Username:", field2,
+                "Password:", field3,
+                "gender (1 - MALE, 2 - FEMALE, 3 - OTHER)", field4,
 
-        System.out.println("Please, enter your username");
-        String username = scanner.nextLine();
+        };
+        int option = JOptionPane.showConfirmDialog(null, message, "Please, fill out all fields", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION)
+        {
+            String value1 = field1.getText();
+            String value2 = field2.getText();
+            String value3 = field3.getText();
+            String value4 = field4.getText();
 
-        System.out.println("Please, enter your password");
-        String password = scanner.nextLine();
-
-        System.out.println("Please, enter your gender (1 - MALE, 2 - FEMALE, 3 - OTHER)");
-        String genderChoice = scanner.nextLine();
-        System.out.println(genderChoice);
-        Gender gender = (genderChoice.equals("1"))? Gender.MALE
-                : (genderChoice.equals("2")) ? Gender.FEMALE : Gender.OTHER;
-        User user = new User(UUID.randomUUID(), name, username, password, gender);
-        return user;
+            User user = new User();
+            user.setId(UUID.randomUUID());
+            user.setName(value1);
+            user.setUsername(value2);
+            user.setPassword(value3);
+            String genderChoice = value4;
+            Gender gender = (genderChoice.equals("1"))? Gender.MALE
+                    : (genderChoice.equals("2")) ? Gender.FEMALE : Gender.OTHER;
+            user.setGender(gender);
+            return user;
+        } else {
+            this.showInfoMessage("You canceled user creation");
+            return null;
+        }
     };
+
+    private void showErrorMessage(String message){
+        showMessageDialog(null, message, "Attention!", ERROR_MESSAGE);
+    }
+
+    private void showInfoMessage(String message){
+        showMessageDialog(null, message, "Information: ", PLAIN_MESSAGE);
+    }
+
     public User registerUser(){
         try {
             this.setUser(this.createUser());
@@ -69,46 +95,61 @@ public class UserController {
                 userRepository.addUser(this.user);
             }
             return this.user;
-        } catch (Exception e){
-            System.out.println("User register failed" + e);
-            return null;
-        }
 
+        } catch (NullPointerException e){
+            this.showErrorMessage("Unfortunately, user creation wasn't successful");
+        } catch (Exception e) {
+            this.showErrorMessage("User register failed: \n " + e);
+        }
+        return null;
     }
 
     public void logout(){
         this.user = null;
+        this.showInfoMessage("You successfully logout!");
     }
 
     public User loginUser() {
-        try {
-            System.out.println("Please, enter your username");
-            String username = scanner.nextLine();
-            System.out.println("Please, enter your password");
-            String password = scanner.nextLine();
-            User user = userRepository.getUserFromUserList(username, password);
-            if (this.userService.login(user)){
-                System.out.println("User " + user.getName() + " login successfully");
-                this.user = user;
-                return user;
-            } else {
+        try{
+            JTextField field1 = new JTextField();
+            JTextField field2 = new JTextField();
+
+            Object[] message = {
+                    "Username:", field1,
+                    "Password:", field2,
+            };
+            int option = JOptionPane.showConfirmDialog(null, message, "Please, fill out all fields", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                String username = field1.getText();
+                String password = field2.getText();
+                User user = userRepository.getUserFromUserList(username, password);
+                if (this.userService.login(user)){
+                    this.showInfoMessage("User " + user.getName() + " login successfully");
+                    System.out.println("User " + user.getName() + " login successfully");
+                    this.user = user;
+                    return user;
+                } else {
+                    return null;
+                }
+            } else{
+                this.showInfoMessage("You canceled user login");
                 return null;
             }
-        } catch (Exception e){
-            System.out.println("Something was wrong with login, let's try again: \n" + e);
+        }catch (Exception e){
+            this.showErrorMessage("Something was wrong with login, let's try again: \n" + e);
             return null;
         }
     }
 
-    public void createAccount() {
+    private void createAccount() {
         //generate account number + 0 balance
         Account account = new Account();
         user.setAccount(account);
     }
 
     public void showAccount() {
-        System.out.println("Your account number: " + user.getAccount().getAccountNumber());
-        System.out.println("Your balance : " + user.getAccount().getBalance());
+        this.showInfoMessage("Account number: " + this.user.getAccount().getAccountNumber() +
+                "\nYour balance: " + this.user.getAccount().getBalance());
     }
 
     public void makeDeposit(double summa) {
@@ -117,7 +158,13 @@ public class UserController {
     }
 
     public void makeTransfer(double summa) {
-        Account account = user.getAccount();
-        account.makeTransfer(summa);
+        this.user.getAccount().makeTransfer(summa);
     }
+
+    public void exit(){
+        this.userRepository.writeToCsvFile();
+        this.showInfoMessage("Bue!\nGlad to see you again");
+        System.exit(0);
+    }
+
 }

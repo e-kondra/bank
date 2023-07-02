@@ -9,6 +9,7 @@ public class User {
     private String password;
     private Gender gender;
     private Account account;
+    public User(){}
 
     public User(UUID id, String name, String username, String password, Gender gender) {
         this.id = id;
@@ -16,15 +17,6 @@ public class User {
         this.username = username;
         this.password = password;
         this.gender = gender;
-    }
-
-    public User(UUID id, String name, String username, String password, Gender gender, Account account) {
-        this.id = id;
-        this.name = name;
-        this.username = username;
-        this.password = password;
-        this.gender = gender;
-        this.account = account;
     }
 
     public UUID getId() {
