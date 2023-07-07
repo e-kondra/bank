@@ -3,22 +3,19 @@ import user.UserController;
 import user.UserRepository;
 
 import javax.swing.*;
-import java.util.Scanner;
-
 import static javax.swing.JOptionPane.*;
 
 public class Menu {
     private final UserRepository userRepository;
-    private UserController userController;
-    Scanner scanner = new Scanner(System.in);
+    private final UserController userController;
     private User user;
-    private JRadioButton buttonRegister = new JRadioButton("register user");;
-    private JRadioButton buttonLogin = new JRadioButton("login");
-    private JRadioButton buttonExit = new JRadioButton("exit");;
-    private JRadioButton buttonShowAccount = new JRadioButton("look at my account");
-    private JRadioButton buttonDeposit = new JRadioButton("make a deposit");
-    private JRadioButton buttonTransfer = new JRadioButton("make a transfer");
-    private JRadioButton buttonLogout = new JRadioButton("logout");
+    private final JRadioButton buttonRegister = new JRadioButton("register user");
+    private final JRadioButton buttonLogin = new JRadioButton("login");
+    private final JRadioButton buttonExit = new JRadioButton("exit");
+    private final JRadioButton buttonShowAccount = new JRadioButton("look at my account");
+    private final JRadioButton buttonDeposit = new JRadioButton("to deposit");
+    private final JRadioButton buttonWithdraw = new JRadioButton("to withdraw");
+    private final JRadioButton buttonLogout = new JRadioButton("logout");
 
 
     public Menu() {
@@ -42,7 +39,7 @@ public class Menu {
             Object[] array = {buttonRegister, buttonLogin, buttonExit};
 
             choice = showConfirmDialog(null, array,
-                    "What would you like to do?", YES_OPTION,
+                    "What would you like to do?", YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
         } else {
 
@@ -50,14 +47,14 @@ public class Menu {
             buttonShowAccount.setSelected(true);
             setMode.add(buttonShowAccount);
             setMode.add(buttonDeposit);
-            setMode.add(buttonTransfer);
+            setMode.add(buttonWithdraw);
             setMode.add(buttonLogout);
             setMode.add(buttonExit);
 
-            Object[] array = {buttonShowAccount, buttonDeposit, buttonTransfer, buttonLogout, buttonExit};
+            Object[] array = {buttonShowAccount, buttonDeposit, buttonWithdraw, buttonLogout, buttonExit};
 
             choice = showConfirmDialog(null, array,
-                    "What would you like to do?", YES_OPTION,
+                    "What would you like to do?", YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
         }
         if (choice == 0) {
@@ -71,20 +68,16 @@ public class Menu {
                 this.user = this.userController.loginUser();
 
             } else if (this.buttonDeposit.isSelected()) {
-                System.out.println("Please, enter a number of funds");
-                double summa = scanner.nextFloat();
-                this.userController.makeDeposit(summa);
+                this.userController.toDeposit();
 
-            } else if (this.buttonTransfer.isSelected()) {
-                System.out.println("Please, enter a number of funds");
-                double summa = scanner.nextFloat();
-                this.userController.makeTransfer(summa);
+            } else if (this.buttonWithdraw.isSelected()) {
+                this.userController.toWithdraw();
 
             } else if (this.buttonLogout.isSelected()) {
                 this.userController.logout();
                 this.user = null;
 
-            } else if (buttonExit.isSelected()) {
+            } else if (this.buttonExit.isSelected()) {
                 this.userController.exit();
             }
 
@@ -92,6 +85,5 @@ public class Menu {
         }
         this.start();
     }
-
 
 }

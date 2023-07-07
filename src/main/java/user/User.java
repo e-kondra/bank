@@ -19,9 +19,6 @@ public class User {
         this.gender = gender;
     }
 
-    public UUID getId() {
-        return id;
-    }
     public void setId(UUID id) {
         this.id = id;
     }
@@ -54,9 +51,6 @@ public class User {
         return gender;
     }
 
-    public Gender getGenderStr() {
-        return gender;
-    }
     public void setGender(Gender gender) {
         this.gender = gender;
     }

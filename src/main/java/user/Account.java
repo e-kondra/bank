@@ -18,14 +18,13 @@ public class Account {
         return accountNumber;
     }
 
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
 
     public double getBalance() {
         return balance;
     }
-
+    public String getBalanceStr() {
+        return String.format("%.2f",balance);
+    }
     public void setBalance(double balance) {
         this.balance = balance;
     }
@@ -35,26 +34,16 @@ public class Account {
         return "LT12345678910111" + tail;
     }
 
-    public void makeDeposit(double deposit){
-        try {
-            this.setBalance(this.getBalance() + deposit);
-            System.out.println("You have successfully funded your account");
-            System.out.println("Your balance "+ this.getBalance());
-        } catch (Exception e){
-            System.out.println(e);
-        }
+    public void toCredit(double amount){
+        this.setBalance(this.getBalance() + amount);
+    }
+    public boolean checkDebitAmount(double amount){
+        return (amount <= this.getBalance());
+    }
+    public void toDebit(double amount) {
+        this.setBalance(this.getBalance() - amount);
     }
 
-    public void makeTransfer(double summa){
-        try {
-            String result = (this.getBalance() - summa < 0)? "insufficient funds in the account": null;
-            if (result == null) {
-                this.setBalance(this.getBalance() - summa);
-            }else {
-                System.out.println(result);
-            }
-        } catch (Exception e){
-            System.out.println(e);
-        }
-    }
+
+
 }

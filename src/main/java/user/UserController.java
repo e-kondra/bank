@@ -1,15 +1,13 @@
 package user;
 
 import javax.swing.*;
-import static javax.swing.JOptionPane.*;\
-import java.util.Scanner;
+import static javax.swing.JOptionPane.*;
 import java.util.UUID;
 
 public class UserController {
     private UserService userService;
     private UserRepository userRepository;
     private User user;
-    Scanner scanner = new Scanner(System.in);
 
     public UserController(UserRepository userRepository) {
         this.userService = new UserService();
@@ -28,56 +26,54 @@ public class UserController {
     private User createUser(){
         try {
             User user = this.collectUserInfo();
-            String result = this.userService.create(user, userRepository.getUserList());
-            if (result != null && result.length() != 0) {
-                System.out.println(result);
-                return null;
-            } else {
-                System.out.println("User " + user.getName() + " - " + user.getGender()+ " was created successfully");
+            if (this.userService.create(user, userRepository.getUserList())){
+                showInfoMessage("User " + user.getUsername() + " was created successfully");
+                displayConsole("User " + user.getUsername() + " was created successfully");
                 return user;
             }
         } catch (Exception e){
-            System.out.println("Something was wrong: \n" + e);
+            showErrorMessage("User wasn't created, please try again");
+            displayConsole("createUser Exception: \n" + e.getMessage());
             return null;
         }
+        return null;
     }
 
     private User collectUserInfo() {
-        JTextField field1 = new JTextField();
-        JTextField field2 = new JTextField();
-        JTextField field3 = new JTextField();
-        JTextField field4 = new JTextField();
+        JTextField fieldName= new JTextField();
+        JTextField fieldUserName = new JTextField();
+        JTextField fieldPassword = new JTextField();
+        JTextField fieldGender = new JTextField();
 
         Object[] message = {
-                "Name:", field1,
-                "Username:", field2,
-                "Password:", field3,
-                "gender (1 - MALE, 2 - FEMALE, 3 - OTHER)", field4,
+                "Name:", fieldName,
+                "Username:", fieldUserName,
+                "Password:", fieldPassword,
+                "gender (1 - MALE, 2 - FEMALE, 3 - OTHER)", fieldGender,
 
         };
-        int option = JOptionPane.showConfirmDialog(null, message, "Please, fill out all fields", JOptionPane.OK_CANCEL_OPTION);
+        int option = JOptionPane.showConfirmDialog(null, message,
+                "Please, fill out all fields", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION)
         {
-            String value1 = field1.getText();
-            String value2 = field2.getText();
-            String value3 = field3.getText();
-            String value4 = field4.getText();
-
             User user = new User();
+
             user.setId(UUID.randomUUID());
-            user.setName(value1);
-            user.setUsername(value2);
-            user.setPassword(value3);
-            String genderChoice = value4;
+            user.setName(fieldName.getText());
+            user.setUsername(fieldUserName.getText());
+            user.setPassword(fieldPassword.getText());
+
+            String genderChoice = fieldGender.getText();
             Gender gender = (genderChoice.equals("1"))? Gender.MALE
                     : (genderChoice.equals("2")) ? Gender.FEMALE : Gender.OTHER;
             user.setGender(gender);
+
             return user;
         } else {
-            this.showInfoMessage("You canceled user creation");
+            showInfoMessage("You canceled user creation");
             return null;
         }
-    };
+    }
 
     private void showErrorMessage(String message){
         showMessageDialog(null, message, "Attention!", ERROR_MESSAGE);
@@ -87,26 +83,34 @@ public class UserController {
         showMessageDialog(null, message, "Information: ", PLAIN_MESSAGE);
     }
 
+    public void displayConsole(String message){
+        System.out.println(message);
+    }
+
     public User registerUser(){
         try {
-            this.setUser(this.createUser());
+            this.setUser(this.createUser());  // creating new user
             if (this.getUser() != null){
-                this.createAccount();
-                userRepository.addUser(this.user);
+                this.createAccount();    // creating account
+                userRepository.addUser(this.user);  // add user in ArrayList
             }
             return this.user;
 
         } catch (NullPointerException e){
-            this.showErrorMessage("Unfortunately, user creation wasn't successful");
+            showErrorMessage("Unfortunately, user's creation wasn't successful, please try again");
+            displayConsole("registerUser NullPointerException \n" + e.getMessage());
         } catch (Exception e) {
-            this.showErrorMessage("User register failed: \n " + e);
+            showErrorMessage("Unfortunately, user's creation wasn't successful, please try again");
+            displayConsole("registerUser :\n" + e.getMessage());
         }
         return null;
     }
 
     public void logout(){
+        String userName = this.user.getUsername();
         this.user = null;
-        this.showInfoMessage("You successfully logout!");
+        showInfoMessage("You successfully logout!");
+        displayConsole( userName + " was logout");
     }
 
     public User loginUser() {
@@ -118,48 +122,41 @@ public class UserController {
                     "Username:", field1,
                     "Password:", field2,
             };
-            int option = JOptionPane.showConfirmDialog(null, message, "Please, fill out all fields", JOptionPane.OK_CANCEL_OPTION);
+            int option = JOptionPane.showConfirmDialog(null, message,
+                    "Please, fill out all fields", JOptionPane.OK_CANCEL_OPTION);
             if (option == JOptionPane.OK_OPTION) {
                 String username = field1.getText();
                 String password = field2.getText();
                 User user = userRepository.getUserFromUserList(username, password);
                 if (this.userService.login(user)){
-                    this.showInfoMessage("User " + user.getName() + " login successfully");
-                    System.out.println("User " + user.getName() + " login successfully");
+                    showInfoMessage("Welcome, " + user.getName() + "!");
+                    displayConsole("User " + user.getUsername() + " login successfully");
                     this.user = user;
                     return user;
                 } else {
                     return null;
                 }
             } else{
-                this.showInfoMessage("You canceled user login");
+                showInfoMessage("You canceled user login");
                 return null;
             }
         }catch (Exception e){
-            this.showErrorMessage("Something was wrong with login, let's try again: \n" + e);
+            showErrorMessage("Something was wrong with login, let's try again");
+            displayConsole("loginUser :\n" + e.getMessage() );
             return null;
         }
     }
 
     private void createAccount() {
-        //generate account number + 0 balance
-        Account account = new Account();
+        Account account = new Account();  //  generate account number + 0 balance
         user.setAccount(account);
     }
 
     public void showAccount() {
         this.showInfoMessage("Account number: " + this.user.getAccount().getAccountNumber() +
-                "\nYour balance: " + this.user.getAccount().getBalance());
+                "\nYour balance: " + this.user.getAccount().getBalanceStr());
     }
 
-    public void makeDeposit(double summa) {
-        Account account = user.getAccount();
-        account.makeDeposit(summa);
-    }
-
-    public void makeTransfer(double summa) {
-        this.user.getAccount().makeTransfer(summa);
-    }
 
     public void exit(){
         this.userRepository.writeToCsvFile();
@@ -167,4 +164,36 @@ public class UserController {
         System.exit(0);
     }
 
+    public void toDeposit() {
+        try {
+            double amount = Double.parseDouble(showInputDialog("How much do you want to deposit?")
+                    .replace(",", "."));
+            Account account = user.getAccount();
+            account.toCredit(amount);
+            showInfoMessage("You have successfully deposited your account\n" +
+                    "Your balance " + account.getBalanceStr());
+        }catch (Exception e){
+            showErrorMessage("Something was wrong, please, try again");
+            displayConsole("makeCredit :\n" + e.getMessage());
+        }
+    }
+
+    public void toWithdraw() {
+        try{
+            Account account = user.getAccount();
+            double amount = Double.parseDouble(showInputDialog("How much do you want to withdraw?\n" +
+                    "available amount " + account.getBalanceStr()).replace(",","."));
+            if (account.checkDebitAmount(amount)) { // check amount
+                account.toDebit(amount);
+                showInfoMessage("You have successfully withdrawn your account\n" +
+                        "Your balance " + account.getBalanceStr());
+            } else {
+                showErrorMessage("Sorry, You don't have enough funds");
+            }
+        }catch (Exception e){
+            showErrorMessage("Something was wrong, please, try again");
+            displayConsole("makeCredit :\n" + e.getMessage());
+        }
+
+    }
 }
