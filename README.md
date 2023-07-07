@@ -1,5 +1,5 @@
 # bank
-Java. Task program for bank
+Java. Banking application (Task for Java Bootcamp)
 
 Main task: Write a program for a bank where:
  - Users can register,
