@@ -109,8 +109,8 @@ public class UserController {
     public void logout(){
         String userName = this.user.getUsername();
         this.user = null;
-        showInfoMessage("You successfully logout!");
-        displayConsole( userName + " was logout");
+        showInfoMessage("You successfully logged out!");
+        displayConsole( userName + " was logged out");
     }
 
     public User loginUser() {
@@ -130,7 +130,7 @@ public class UserController {
                 User user = userRepository.getUserFromUserList(username, password);
                 if (this.userService.login(user)){
                     showInfoMessage("Welcome, " + user.getName() + "!");
-                    displayConsole("User " + user.getUsername() + " login successfully");
+                    displayConsole("User " + user.getUsername() + " logged in successfully");
                     this.user = user;
                     return user;
                 } else {
@@ -141,7 +141,7 @@ public class UserController {
                 return null;
             }
         }catch (Exception e){
-            showErrorMessage("Something was wrong with login, let's try again");
+            showErrorMessage("Something was wrong with log in, let's try again");
             displayConsole("loginUser :\n" + e.getMessage() );
             return null;
         }

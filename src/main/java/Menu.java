@@ -10,12 +10,12 @@ public class Menu {
     private final UserController userController;
     private User user;
     private final JRadioButton buttonRegister = new JRadioButton("register user");
-    private final JRadioButton buttonLogin = new JRadioButton("login");
+    private final JRadioButton buttonLogin = new JRadioButton("log in");
     private final JRadioButton buttonExit = new JRadioButton("exit");
     private final JRadioButton buttonShowAccount = new JRadioButton("look at my account");
     private final JRadioButton buttonDeposit = new JRadioButton("to deposit");
     private final JRadioButton buttonWithdraw = new JRadioButton("to withdraw");
-    private final JRadioButton buttonLogout = new JRadioButton("logout");
+    private final JRadioButton buttonLogout = new JRadioButton("log out");
 
 
     public Menu() {
